@@ -1,0 +1,53 @@
+## docs-> https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html
+## Server
+server:
+  servlet:
+    context-path: /lembretes-ws
+  compression:
+    enabled: false
+    mime-types:
+      - application/json
+      - application/xml
+      - text/html
+      - text/xml
+      - text/plain
+      
+## Spring
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  thymeleaf:
+    cache: false
+## Spring DATASOURCE (DataSourceAutoConfiguration & DataSourceProperties)    
+  datasource:
+    #initialization-mode: always
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: password
+    ## default connection pool
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+## JPA    
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ##drop n create table again, good for testing, comment this in production or change to validate,update
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+  
+##enterprise
+wolfdev:
+  securityEnabled: false
+  schema-db: lembretes
+  allowedOrigins: http://localhost,
+                  http://localhost:3000,
+                  http://localhost:3001,
+                  http://localhost:3002,
+  compressRequest: false
+       
