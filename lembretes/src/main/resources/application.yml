@@ -18,16 +18,7 @@ spring:
     allow-bean-definition-overriding: true
   thymeleaf:
     cache: false
-## Spring DATASOURCE (DataSourceAutoConfiguration & DataSourceProperties)    
-  datasource:
-    #initialization-mode: always
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: password
-    ## default connection pool
-    hikari:
-      connection-timeout: 20000
-      maximum-pool-size: 5
+
 ## JPA    
   jpa:
     generate-ddl: true
@@ -50,4 +41,8 @@ wolfdev:
                   http://localhost:3001,
                   http://localhost:3002,
   compressRequest: false
+  
+##project
+lembretes:
+  main-path: http://example.com   
        
