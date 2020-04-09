@@ -57,7 +57,7 @@ public class MailService {
 			params.put("mainPath", getMainPath());
 			String content = replaceParams(params, "MailContent.valueOf(template).getContent()");
 			mailParameters.setSubject("mailSubject.valueOf(template).getSubject()");
-			mailParameters.setContent("content");
+			mailParameters.setContent(content);
 			send(mailParameters);
 			return true;
 

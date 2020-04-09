@@ -7,6 +7,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ErrorControl {
 	private @Getter @Setter String error;
-	private @Getter @Setter boolean statusCode;
+	private @Getter @Setter int statusCode;
 	private @Getter @Setter boolean isCustom;
 }
