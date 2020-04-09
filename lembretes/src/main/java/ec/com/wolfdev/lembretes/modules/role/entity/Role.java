@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import ec.com.wolfdev.lembretes.core.base.entity.BaseEntity;
+import ec.com.wolfdev.lembretes.modules.role_permission_module.entity.RolePermissionModule;
 import ec.com.wolfdev.lembretes.utils.Const;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +31,7 @@ public class Role extends BaseEntity {
 	@Column(name = "description", nullable = false, columnDefinition = "VARCHAR(200)")
 	private @Getter @Setter String description;
 	
-	@JsonManagedReference("rolePermission")
+	@JsonManagedReference("rolePermissionMoule")
 	@OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<RolePermission> rolePermissions = new ArrayList<>();
+	private @Getter @Setter List<RolePermissionModule> rolePermissionModules = new ArrayList<>();
 }

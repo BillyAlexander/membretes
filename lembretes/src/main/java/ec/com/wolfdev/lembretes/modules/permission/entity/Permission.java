@@ -22,5 +22,9 @@ public class Permission extends BaseEntity {
 	
 	@Column(name = "description", nullable = false, columnDefinition = "VARCHAR(200)")
 	private @Getter @Setter String description;
+	
+//	@JsonManagedReference("permissionModule")
+//	@OneToMany(mappedBy = "permission", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+//	private @Getter @Setter List<PermissionModule> permissionRoles = new ArrayList<>();
 
 }

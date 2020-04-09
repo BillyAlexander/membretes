@@ -14,4 +14,8 @@ public interface Const {
 	public static final String API_PUBLIC = "open/";
 	
 	public static final String PASSWORD_SYMBOLS = "1234567890abcdefghijklmnopqrstuvwxyz0987654321";
+	
+	public static final String SORT_ASC = "asc";
+	
+	public static final String SORT_DESC = "desc";
 }

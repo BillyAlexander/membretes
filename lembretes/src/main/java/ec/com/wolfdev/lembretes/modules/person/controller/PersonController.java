@@ -1,6 +1,7 @@
 package ec.com.wolfdev.lembretes.modules.person.controller;
 
 import javax.servlet.ServletException;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,7 +38,7 @@ public class PersonController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> createPerson(@RequestBody Person person) throws ServletException, PgpException {
+	public ResponseEntity<?> createPerson(@RequestBody @Valid Person person) throws ServletException, PgpException {
 		return personService.savePerson(person, true);
 	}
 	

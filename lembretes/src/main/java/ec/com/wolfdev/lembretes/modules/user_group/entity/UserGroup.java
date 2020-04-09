@@ -1,4 +1,4 @@
-package ec.com.wolfdev.lembretes.modules.module.entity;
+package ec.com.wolfdev.lembretes.modules.user_group.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,14 +13,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(schema = Const.SCHEMA, name = "module", uniqueConstraints = {
-		@UniqueConstraint(columnNames = { "name" }, name = "module_name_uk") })
+@Table(schema = Const.SCHEMA, name = "user_group", uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "name" }, name = "usergroup_name_uk") })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
-public class Module extends BaseEntity {
+public class UserGroup extends BaseEntity {
 	@Column(name = "name", nullable = false, columnDefinition = "VARCHAR(20)")
 	private @Getter @Setter String name;
 	
 	@Column(name = "description", nullable = false, columnDefinition = "VARCHAR(200)")
 	private @Getter @Setter String description;
-	
 }
