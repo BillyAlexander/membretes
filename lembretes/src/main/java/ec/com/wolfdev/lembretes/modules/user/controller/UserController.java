@@ -21,34 +21,44 @@ import ec.com.wolfdev.lembretes.modules.user.service.UserService;
 import ec.com.wolfdev.lembretes.utils.Const;
 
 @RestController
-@RequestMapping(value = Const.API_PRIVATE+"user", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = Const.API_PRIVATE + "user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 	@Autowired
 	private UserService userService;
-	
+
 	@GetMapping
 	public ResponseEntity<?> getUsers() throws ServletException {
 		return userService.getUsers();
 	}
-	
+
+	@PostMapping(value = "search")
+	public ResponseEntity<?> getUsersSearch(@RequestBody(required = false) UserSearch search) throws ServletException {
+		if (search == null) {
+			search = new UserSearch();
+		}		
+		return userService.getUsersBySearch(search);
+	}
+
 	@GetMapping(path = "{id}")
 	public ResponseEntity<?> getUser(@PathVariable("id") Long id) throws ServletException {
 		return userService.getUser(id);
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<?> createUser(@RequestBody @Valid User user) throws ServletException, PgpException {
+	public ResponseEntity<?> createUser(@RequestBody(required = true) @Valid User user)
+			throws ServletException, PgpException {
 		return userService.saveUser(user, true);
 	}
-	
+
 	@PutMapping(path = "{id}")
-	public ResponseEntity<?> updateUser(@PathVariable("id") Long id,@RequestBody User user) throws ServletException, PgpException {
+	public ResponseEntity<?> updateUser(@PathVariable("id") Long id, @RequestBody(required = true) User user)
+			throws ServletException, PgpException {
 		user.setId(id);
-		return userService.saveUser(user,false);
+		return userService.saveUser(user, false);
 	}
-	
+
 	@DeleteMapping(path = "{id}")
-	public ResponseEntity<?> deleteUser(@PathVariable("id") Long id ) throws ServletException {
+	public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) throws ServletException {
 		return userService.deleteUser(id);
 	}
 }

@@ -21,35 +21,45 @@ import ec.com.wolfdev.lembretes.modules.person.service.PersonService;
 import ec.com.wolfdev.lembretes.utils.Const;
 
 @RestController
-@RequestMapping(value = Const.API_PRIVATE+"person", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = Const.API_PRIVATE + "person", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PersonController {
 
 	@Autowired
 	private PersonService personService;
-	
+
 	@GetMapping
-	public ResponseEntity<?> getPeople() throws ServletException {
+	public ResponseEntity<?> getPeople(@RequestBody(required = false) PersonSearch search) throws ServletException {
 		return personService.getPeople();
 	}
-	
+
+	@PostMapping(value = "search")
+	public ResponseEntity<?> getPeopleBySearch(@RequestBody(required = false) PersonSearch search)
+			throws ServletException {
+		if (search == null) {
+			search = new PersonSearch();
+		}
+		return personService.getPeopleBySearch(search);
+	}
+
 	@GetMapping(path = "{id}")
 	public ResponseEntity<?> getPerson(@PathVariable("id") Long id) throws ServletException {
 		return personService.getPerson(id);
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<?> createPerson(@RequestBody @Valid Person person) throws ServletException, PgpException {
 		return personService.savePerson(person, true);
 	}
-	
+
 	@PutMapping(path = "{id}")
-	public ResponseEntity<?> updatePerson(@PathVariable("id") Long id,@RequestBody Person person) throws ServletException, PgpException {
+	public ResponseEntity<?> updatePerson(@PathVariable("id") Long id, @RequestBody Person person)
+			throws ServletException, PgpException {
 		person.setId(id);
-		return personService.savePerson(person,false);
+		return personService.savePerson(person, false);
 	}
-	
+
 	@DeleteMapping(path = "{id}")
-	public ResponseEntity<?> deletePerson(@PathVariable("id") Long id ) throws ServletException {
+	public ResponseEntity<?> deletePerson(@PathVariable("id") Long id) throws ServletException {
 		return personService.deletePerson(id);
 	}
 }

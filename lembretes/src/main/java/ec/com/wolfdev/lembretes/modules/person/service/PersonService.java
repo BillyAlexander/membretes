@@ -13,11 +13,13 @@ import ec.com.wolfdev.lembretes.core.base.error.ErrorControl;
 import ec.com.wolfdev.lembretes.core.base.exception.PgpException;
 import ec.com.wolfdev.lembretes.core.base.message.MessageControl;
 import ec.com.wolfdev.lembretes.core.base.service.BaseService;
+import ec.com.wolfdev.lembretes.modules.person.controller.PersonSearch;
 import ec.com.wolfdev.lembretes.modules.person.entity.Person;
 import ec.com.wolfdev.lembretes.modules.person.entity.Lite.PersonLite;
 import ec.com.wolfdev.lembretes.modules.person.repository.PersonRepo;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
 import ec.com.wolfdev.lembretes.utils.AppMessage;
+
 @Service
 public class PersonService extends BaseService<User> {
 
@@ -38,22 +40,35 @@ public class PersonService extends BaseService<User> {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
+	@Transactional
+	public ResponseEntity<?> getPeopleBySearch(PersonSearch search) {
+		try {
+			return new ResponseEntity<List<PersonLite>>(
+					personRepo.findPersonBySearch(search.getDocumentId(), search.getName(), search.getLastName(),
+							search.getStatus(), search.isDeleted, search.getStartDate(), search.getEndDate(), search.getPaginate().getPaginate()),
+					HttpStatus.OK);
+		} catch (Exception err) {
+			return new ResponseEntity<ErrorControl>(
+					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	@Transactional
 	public ResponseEntity<?> getPerson(Long id) {
 		try {
 			Person found = personRepo.findById(id).orElse(null);
-			if(found == null)
+			if (found == null)
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
+						HttpStatus.NOT_FOUND);
+			else if (found.getIsDeleted())
 				return new ResponseEntity<ErrorControl>(
 						new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
 						HttpStatus.NOT_FOUND);
 			else
-				if(found.getIsDeleted())
-					return new ResponseEntity<ErrorControl>(
-							new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
-							HttpStatus.NOT_FOUND);
-				else
-					return new ResponseEntity<Person>(found, HttpStatus.OK);
+				return new ResponseEntity<Person>(found, HttpStatus.OK);
 		} catch (Exception err) {
 			return new ResponseEntity<ErrorControl>(
 					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
@@ -99,11 +114,10 @@ public class PersonService extends BaseService<User> {
 				msg = AppMessage.MSJ_CREATE_INFORMATION;
 			} else {
 				person = personReplace(person);
-				if(person == null) {
+				if (person == null) {
 					msg = AppMessage.MSJ_UPDATE_WITHOUT_INFORMATION;
 					return new ResponseEntity<ErrorControl>(
-							new ErrorControl(msg ,
-									HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
+							new ErrorControl(msg, HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
 							HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 				msg = AppMessage.MSJ_UPDATE_INFORMATION;

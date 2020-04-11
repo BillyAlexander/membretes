@@ -15,8 +15,12 @@ public class AppMethods {
 	}
 
 	public static Sort sortFound(String field, String direction) {
+		/* Review for more fields - iterating 
+		 * Sort sort = Sort.by("firstname").ascending().and(Sort.by("lastname").descending());
+		 * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.paging-and-sorting*/
+		
 		Sort sort = Sort.by(field).ascending();
-		if(direction.equals("desc"))
+		if(direction.equals(Const.SORT_DESC))
 			sort = sort.descending();
 		return sort;
 	}
