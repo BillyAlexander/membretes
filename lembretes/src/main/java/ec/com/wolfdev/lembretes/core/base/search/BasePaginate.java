@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
+import ec.com.wolfdev.lembretes.utils.AppMethods;
 import ec.com.wolfdev.lembretes.utils.Const;
 import lombok.Data;
 
@@ -18,10 +19,12 @@ public class BasePaginate {
 	protected PageRequest paginate = PageRequest.of(this.page, this.size);
 
 	public PageRequest getPaginate() {
+		Sort sortToPaginate;
 		if (sort == null)
-			this.paginate = PageRequest.of(this.page, this.size, Sort.by(new Order[0]));
+			sortToPaginate = Sort.by(new Order[0]);
 		else
-			this.paginate = PageRequest.of(this.page, this.size, this.sort.getSort());
+			sortToPaginate = AppMethods.sortFound(this.sort.fieldName, this.sort.direction);
+		this.paginate = PageRequest.of(this.page, this.size, sortToPaginate);
 		return this.paginate;
 	}
 }
