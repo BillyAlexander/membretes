@@ -1,5 +1,7 @@
 package ec.com.wolfdev.lembretes.modules.user.controller;
 
+import java.util.Date;
+
 import javax.servlet.ServletException;
 import javax.validation.Valid;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import ec.com.wolfdev.lembretes.core.base.exception.PgpException;
@@ -31,12 +34,23 @@ public class UserController {
 		return userService.getUsers();
 	}
 
-	@PostMapping(value = "search")
-	public ResponseEntity<?> getUsersSearch(@RequestBody(required = false) UserSearch search) throws ServletException {
-		if (search == null) {
-			search = new UserSearch();
-		}		
-		return userService.getUsersBySearch(search);
+	@GetMapping(value = "search")
+	public ResponseEntity<?> getUsersSearch(@RequestParam(required = false) Long personId,
+			@RequestParam(required = false, defaultValue = "") String userName,
+			@RequestParam(required = false, defaultValue = "") String personDocumentId,
+			@RequestParam(required = false, defaultValue = "") String personName,
+			@RequestParam(required = false, defaultValue = "") String personLastName,
+			@RequestParam(required = false) Long roleId, @RequestParam(required = false) Long userGroupId,
+			@RequestParam(required = false) Boolean status, @RequestParam(required = false) Boolean isDeleted,
+			@RequestParam(required = false) Date startDate, @RequestParam(required = false) Date endDate,
+			@RequestParam(required = false, defaultValue = "0") int page,
+			@RequestParam(required = false, defaultValue = "10") int size,
+			@RequestParam(required = false, defaultValue = Const.SORT_FIELD_DEFAULT) String fieldName,
+			@RequestParam(required = false, defaultValue = Const.SORT_DESC) String direction) throws ServletException {
+
+		return userService.getUsersBySearch(personId, userName, personDocumentId, personName, personLastName, roleId,
+				userGroupId, status, isDeleted, startDate == null ? new Date(0) : startDate,
+				endDate == null ? new Date() : endDate, page, size, fieldName, direction);
 	}
 
 	@GetMapping(path = "{id}")
@@ -58,7 +72,7 @@ public class UserController {
 	}
 
 	@DeleteMapping(path = "{id}")
-	public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) throws ServletException {
+	public ResponseEntity<?> deleteUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return userService.deleteUser(id);
 	}
 }

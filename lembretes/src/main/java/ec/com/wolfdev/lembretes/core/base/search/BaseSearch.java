@@ -7,6 +7,7 @@ import javax.persistence.MappedSuperclass;
 import lombok.Data;
 
 @Data
+//@AllArgsConstructor //add
 @MappedSuperclass
 public class BaseSearch {
 	protected Boolean status;

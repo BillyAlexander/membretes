@@ -2,6 +2,7 @@ package ec.com.wolfdev.lembretes.modules.user.repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,8 @@ import ec.com.wolfdev.lembretes.modules.user.entity.lite.UserLite;
 public interface UserRepo extends JpaRepository<User, Long> {
 	public User findByUserNameIgnoreCaseAndIsDeletedFalseAndStatusTrue(String userName);
 
+	public Optional<User> findByUserNameIgnoreCase(String userName);
+
 	public List<UserLite> findByIsDeletedFalseAndStatusTrue(Sort sort);
 
 	@Query("SELECT a" + " FROM User a WHERE" + " UPPER(a.userName) LIKE UPPER('%' || :userName || '%') AND"
@@ -28,7 +31,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 			+ " (:userGroupId IS NULL OR a.userGroup.id=:userGroupId) AND "
 			+ " (:status IS NULL OR a.status=:status) AND" + " (:isDeleted IS NULL OR a.isDeleted=:isDeleted) AND"
 			+ " DATE(a.creationDate) BETWEEN DATE(:startDate) AND DATE(:endDate)")
-	public Page<UserLite> findUserBySearch(@Param("personId") Long personId, @Param("userName") String userName,
+	public Page<User> findUserBySearch(@Param("personId") Long personId, @Param("userName") String userName,
 			@Param("personDocumentId") String personDocumentId, @Param("personName") String personName,
 			@Param("personLastName") String personLastName, @Param("roleId") Long roleId,
 			@Param("userGroupId") Long userGroupId, @Param("status") Boolean status,
