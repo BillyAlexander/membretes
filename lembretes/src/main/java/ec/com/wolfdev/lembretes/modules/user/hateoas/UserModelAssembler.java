@@ -5,17 +5,21 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import javax.servlet.ServletException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
 import ec.com.wolfdev.lembretes.modules.person.controller.PersonController;
+import ec.com.wolfdev.lembretes.modules.person.hateoas.PersonModelAssembler;
 import ec.com.wolfdev.lembretes.modules.user.controller.UserController;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
 import ec.com.wolfdev.lembretes.utils.Const;
 
 @Component
 public class UserModelAssembler extends RepresentationModelAssemblerSupport<User, UserModel> {
+	@Autowired
+	private PersonModelAssembler personModelAssembler;
 
 	public UserModelAssembler() {
 		super(UserController.class, UserModel.class);
@@ -35,6 +39,7 @@ public class UserModelAssembler extends RepresentationModelAssemblerSupport<User
 		userModel.setStatus(entity.getStatus());
 		userModel.setPassword(entity.getPassword());
 		userModel.setUserName(entity.getUserName());
+		userModel.setPerson(personModelAssembler.toModel(entity.getPerson()));
 
 		return userModel;
 	}
@@ -52,4 +57,5 @@ public class UserModelAssembler extends RepresentationModelAssemblerSupport<User
 
 		return usersModel;
 	}
+
 }
