@@ -21,10 +21,11 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import ec.com.wolfdev.lembretes.core.security.config.AppProperties;
 import ec.com.wolfdev.lembretes.utils.Const;
 
 @Configuration
-@EnableConfigurationProperties
+@EnableConfigurationProperties(AppProperties.class)
 public class LembretesConfiguration extends SpringBootServletInitializer {
 	@Value("${spring.jpa.generate-ddl}")
 	private Boolean generateDll;

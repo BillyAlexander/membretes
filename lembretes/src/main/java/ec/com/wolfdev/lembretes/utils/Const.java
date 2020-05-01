@@ -13,4 +13,6 @@ public interface Const {
 	public static final Integer PAGE_0_DEFAULT = 0;
 	public static final Integer PAGE_SIZE_DEFAULT = 10;
 	public static final String SORT_FIELD_DEFAULT = "creationDate";
+	
+	public static final Long USER_GROUP_DEFAULT = 11L;
 }

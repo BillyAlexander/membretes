@@ -4,10 +4,13 @@ import java.util.Date;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import ec.com.wolfdev.lembretes.modules.person.hateoas.PersonModel;
+import ec.com.wolfdev.lembretes.modules.catalog_admin.hateoas.CatalogAdminModel;
+import ec.com.wolfdev.lembretes.modules.role.hateoas.RoleModel;
+import ec.com.wolfdev.lembretes.utils.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,9 +28,12 @@ public class UserModel extends RepresentationModel<UserModel> {
 	private Date creationDate;
 	private Boolean isDeleted;
 	private Boolean status;
-	
+	private AuthProvider provider;
+
 	private String userName;
+	@JsonIgnore
 	private String password;
-	
-	private PersonModel person;
+
+	private CatalogAdminModel userGroup;
+	private RoleModel role;
 }

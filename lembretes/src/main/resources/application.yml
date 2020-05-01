@@ -32,17 +32,39 @@ spring:
         jdbc:
           batch_size: 50
   
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: clientId.apps.googleusercontent.com
+            clientSecret: secretId
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+   
+  
 ##enterprise
 wolfdev:
   securityEnabled: false
   schema-db: lembretes
-  allowedOrigins: http://localhost,
-                  http://localhost:3000,
-                  http://localhost:3001,
-                  http://localhost:3002,
+  allowedOrigins: "*"
   compressRequest: false
   
 ##project
-lembretes:
+app:
+  auth:
+    tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
+    tokenExpirationMsec: 864000000
+  oauth2:
+    # After successfully authenticating with the OAuth2 Provider,
+    # we'll be generating an auth token for the user and sending the token to the
+    # redirectUri mentioned by the frontend client in the /oauth2/authorize request.
+    # We're not using cookies because they won't work well in mobile clients.
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect
+      - myandroidapp://oauth2/redirect
+      - myiosapp://oauth2/redirect    
   main-path: http://example.com   
        

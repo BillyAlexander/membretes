@@ -8,8 +8,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
+import ec.com.wolfdev.lembretes.core.base.context.WolfDevBase;
+import ec.com.wolfdev.lembretes.core.base.context.WolfDevBaseContextHolder;
 import lombok.Data;
 
 @MappedSuperclass
@@ -35,14 +38,29 @@ public class BaseEntity {
 
 	@Column(name = "update_user")
 	protected Long updateUser;
-	
+
 	@Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
 	protected Boolean isDeleted = false;
-	
+
+	@PrePersist
+	protected void onCreate() {
+		WolfDevBase wolfDev = WolfDevBaseContextHolder.getContext().getBean(WolfDevBase.class);
+		try {
+			this.setCreationUser(wolfDev.getConfig().getCurrentUserId());
+		} catch (Exception ex) {
+			this.setCreationUser(-1L);
+		}
+	}
+
 	@PreUpdate
 	protected void onUpdate() {
+		WolfDevBase wolfDev = WolfDevBaseContextHolder.getContext().getBean(WolfDevBase.class);
 		this.setUpdateDate(new Date());
-		this.setUpdateUser(-1L); //change to current user
+		try {
+			this.setUpdateUser(wolfDev.getConfig().getCurrentUserId());
+		} catch (Exception e) {
+			this.setUpdateUser(-1L);
+		}
 	}
 
 }

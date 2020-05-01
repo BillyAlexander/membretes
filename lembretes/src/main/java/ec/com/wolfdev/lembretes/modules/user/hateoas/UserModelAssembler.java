@@ -6,24 +6,26 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import javax.servlet.ServletException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
 
-import ec.com.wolfdev.lembretes.modules.person.controller.PersonController;
-import ec.com.wolfdev.lembretes.modules.person.hateoas.PersonModelAssembler;
+import ec.com.wolfdev.lembretes.modules.catalog_admin.hateoas.CatalogAdminModelAssembler;
+import ec.com.wolfdev.lembretes.modules.role.hateoas.RoleModelAssembler;
 import ec.com.wolfdev.lembretes.modules.user.controller.UserController;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
-import ec.com.wolfdev.lembretes.utils.Const;
 
 @Component
 public class UserModelAssembler extends RepresentationModelAssemblerSupport<User, UserModel> {
-	@Autowired
-	private PersonModelAssembler personModelAssembler;
 
 	public UserModelAssembler() {
 		super(UserController.class, UserModel.class);
 	}
+
+	@Autowired
+	private CatalogAdminModelAssembler catalogAdminModelAssembler;
+
+	@Autowired
+	private RoleModelAssembler roleModelAssembler;
 
 	@Override
 	public UserModel toModel(User entity) {
@@ -37,25 +39,25 @@ public class UserModelAssembler extends RepresentationModelAssemblerSupport<User
 		userModel.setCreationDate(entity.getCreationDate());
 		userModel.setIsDeleted(entity.getIsDeleted());
 		userModel.setStatus(entity.getStatus());
-		userModel.setPassword(entity.getPassword());
 		userModel.setUserName(entity.getUserName());
-		userModel.setPerson(personModelAssembler.toModel(entity.getPerson()));
-
+		userModel.setUserGroup(catalogAdminModelAssembler.toModel(entity.getUserGroup()));
+		userModel.setRole(roleModelAssembler.toModel(entity.getRole()));
+		userModel.setProvider(entity.getProvider());
 		return userModel;
 	}
 
-	@Override
-	public CollectionModel<UserModel> toCollectionModel(Iterable<? extends User> entities) {
-
-		CollectionModel<UserModel> usersModel = super.toCollectionModel(entities);
-		try {
-			usersModel.add(linkTo(methodOn(PersonController.class).getPeople(Const.PAGE_0_DEFAULT,
-					Const.PAGE_SIZE_DEFAULT, Const.SORT_FIELD_DEFAULT, Const.SORT_DESC)).withSelfRel());
-		} catch (ServletException e) {
-			e.printStackTrace();
-		}
-
-		return usersModel;
-	}
+//	@Override
+//	public CollectionModel<UserModel> toCollectionModel(Iterable<? extends User> entities) {
+//
+//		CollectionModel<UserModel> usersModel = super.toCollectionModel(entities);
+//		try {
+//			usersModel.add(linkTo(methodOn(UserController.class).getUsersSearch(personId, userName, personName, personLastName, roleId, userGroupId, status, isDeleted, startDate, endDate, page, size, fieldName, direction)(Const.PAGE_0_DEFAULT,
+//					Const.PAGE_SIZE_DEFAULT, Const.SORT_FIELD_DEFAULT, Const.SORT_DESC)).withSelfRel());
+//		} catch (ServletException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return usersModel;
+//	}
 
 }
