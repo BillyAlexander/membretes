@@ -49,4 +49,10 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) throws ServletException {
 		return userService.registerUser(signUpRequest);
 	}
+
+	@PostMapping("/passwordRecovery")
+	public ResponseEntity<?> passwordRecovery(@RequestBody LoginRequest loginRequest) throws ServletException {
+		return userService.passwordRecovery(loginRequest.getUserName());
+	}
+
 }

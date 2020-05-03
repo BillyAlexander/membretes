@@ -37,8 +37,8 @@ spring:
       client:
         registration:
           google:
-            clientId: clientId.apps.googleusercontent.com
-            clientSecret: secretId
+            clientId: client.apps.googleusercontent.com
+            clientSecret: secret
             redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
             scope:
               - email

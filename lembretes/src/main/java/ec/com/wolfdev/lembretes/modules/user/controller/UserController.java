@@ -85,8 +85,14 @@ public class UserController {
 	}
 
 	@DeleteMapping(path = "{id}")
-	@PreAuthorize("hasAnyAuthority('MODERADOR-DELETE')")
+	@PreAuthorize("hasAnyAuthority('MODERADOR-DELETE','MODERADOR-WRITE')")
 	public ResponseEntity<?> deleteUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return userService.deleteUser(id);
+	}
+
+	@PutMapping(value = "block/{id}")
+	@PreAuthorize("hasAnyAuthority('MODERADOR-WRITE')")
+	public ResponseEntity<?> blockUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
+		return userService.blockUser(id);
 	}
 }

@@ -1,8 +1,11 @@
 package ec.com.wolfdev.lembretes.modules.user.service;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -16,21 +19,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import ec.com.wolfdev.lembretes.core.base.context.WolfDevBase;
+import ec.com.wolfdev.lembretes.core.base.context.WolfDevBaseContextHolder;
 import ec.com.wolfdev.lembretes.core.base.error.ErrorControl;
 import ec.com.wolfdev.lembretes.core.base.exception.PgpException;
 import ec.com.wolfdev.lembretes.core.base.message.MessageControl;
 import ec.com.wolfdev.lembretes.core.base.service.BaseService;
+import ec.com.wolfdev.lembretes.core.mail.MailParameters;
 import ec.com.wolfdev.lembretes.core.security.exception.BadRequestException;
 import ec.com.wolfdev.lembretes.core.security.exception.ResourceNotFoundException;
 import ec.com.wolfdev.lembretes.core.security.oauth2.payload.ApiResponse;
 import ec.com.wolfdev.lembretes.core.security.oauth2.payload.SignUpRequest;
 import ec.com.wolfdev.lembretes.modules.catalog_admin.entity.CatalogAdmin;
+import ec.com.wolfdev.lembretes.modules.mail.service.MailService;
 import ec.com.wolfdev.lembretes.modules.role.entity.Role;
 import ec.com.wolfdev.lembretes.modules.role_permission_module.hateoas.PermissionModuleModelAssembler;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
 import ec.com.wolfdev.lembretes.modules.user.hateoas.UserModel;
 import ec.com.wolfdev.lembretes.modules.user.hateoas.UserModelAssembler;
 import ec.com.wolfdev.lembretes.modules.user.repository.UserRepo;
+import ec.com.wolfdev.lembretes.utils.AcronyMail;
 import ec.com.wolfdev.lembretes.utils.AppMessage;
 import ec.com.wolfdev.lembretes.utils.AppMethods;
 import ec.com.wolfdev.lembretes.utils.AppRoles;
@@ -58,6 +66,12 @@ public class UserService extends BaseService<User> {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private MailService mailService;
+
+	@Autowired
+	private WolfDevBase wolfDev = WolfDevBaseContextHolder.getContext().getBean(WolfDevBase.class);
 
 	@Transactional
 	public ResponseEntity<?> getUsers() {
@@ -117,16 +131,69 @@ public class UserService extends BaseService<User> {
 	@Transactional
 	public ResponseEntity<?> deleteUser(Long id) {
 		try {
-			return userRepo.findById(id).map(found -> {
-				found.setIsDeleted(true);
-				return userRepo.save(found);
-			}).orElse(null) == null
-					? new ResponseEntity<ErrorControl>(
-							new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
-							HttpStatus.NOT_FOUND)
-					: new ResponseEntity<MessageControl>(
-							new MessageControl(AppMessage.MSJ_DELETE_INFORMATION, HttpStatus.OK.value(), true),
-							HttpStatus.OK);
+
+			User user = userRepo.findById(id).orElse(null);
+
+			if (user == null) {
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
+						HttpStatus.NOT_FOUND);
+			} else {
+				if (!verifyRoleUser(user.getRole().getId(), user.getId(), false, true))
+					return new ResponseEntity<ErrorControl>(
+							new ErrorControl(AppMessage.MSJ_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), true),
+							HttpStatus.UNAUTHORIZED);
+
+				user.setIsDeleted(!user.getIsDeleted());
+				user = userRepo.save(user);
+
+				String msg = AppMessage.MSJ_DELETE_INFORMATION;
+				if (user.getIsDeleted())
+					msg = String.format(msg, "desactivada");
+				else
+					msg = String.format(msg, "activada");
+
+				return new ResponseEntity<MessageControl>(new MessageControl(msg, HttpStatus.OK.value(), true),
+						HttpStatus.OK);
+			}
+
+		} catch (Exception err) {
+			return new ResponseEntity<ErrorControl>(
+					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@Transactional
+	public ResponseEntity<?> blockUser(Long id) {
+		try {
+
+			User user = userRepo.findById(id).orElse(null);
+
+			if (user == null) {
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(AppMessage.MSJ_NOT_FOUND_INFORMATION, HttpStatus.NOT_FOUND.value(), true),
+						HttpStatus.NOT_FOUND);
+			} else {
+
+				if (!verifyRoleUser(user.getRole().getId(), user.getId(), false, true))
+					return new ResponseEntity<ErrorControl>(
+							new ErrorControl(AppMessage.MSJ_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), true),
+							HttpStatus.UNAUTHORIZED);
+
+				user.setStatus(!user.getStatus());
+				user = userRepo.save(user);
+
+				String msg = AppMessage.MSJ_BLOCKED_INFORMATION;
+				if (user.getStatus())
+					msg = String.format(msg, "habilitada");
+				else
+					msg = String.format(msg, "deshabilitada");
+
+				return new ResponseEntity<MessageControl>(new MessageControl(msg, HttpStatus.OK.value(), true),
+						HttpStatus.OK);
+			}
+
 		} catch (Exception err) {
 			return new ResponseEntity<ErrorControl>(
 					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
@@ -167,10 +234,16 @@ public class UserService extends BaseService<User> {
 				}
 				msg = AppMessage.MSJ_UPDATE_INFORMATION;
 			}
+
+			if (!verifyRoleUser(user.getRole().getId(), user.getId(), isCreate, false))
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(AppMessage.MSJ_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), true),
+						HttpStatus.UNAUTHORIZED);
+
 			userRepo.save(user);
 
-			return new ResponseEntity<MessageControl>(new MessageControl(msg, HttpStatus.OK.value(), true),
-					HttpStatus.OK);
+			return new ResponseEntity<MessageControl>(new MessageControl(msg, HttpStatus.CREATED.value(), true),
+					HttpStatus.CREATED);
 		} catch (Exception err) {
 			return new ResponseEntity<ErrorControl>(
 					new ErrorControl(err.getCause().getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
@@ -195,6 +268,11 @@ public class UserService extends BaseService<User> {
 			if (userRepo.existsByUserName(signUpRequest.getUserName())) {
 				throw new BadRequestException(AppMessage.MSJ_SIGNUP_EMAIL_EXISTS + " " + signUpRequest.getUserName());
 			}
+
+			if (!verifyRoleUser(AppRoles.PUBLIC.getRole(), 0L, true, false))
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(AppMessage.MSJ_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), true),
+						HttpStatus.UNAUTHORIZED);
 
 			// Creating user's account
 			User user = new User();
@@ -227,6 +305,44 @@ public class UserService extends BaseService<User> {
 		}
 	}
 
+	public ResponseEntity<?> passwordRecovery(String email) {
+		try {
+			User user = userRepo.findByUserNameIgnoreCase(email)
+					.orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+			if (!user.getStatus() || user.getIsDeleted()) {
+				return new ResponseEntity<ErrorControl>(
+						new ErrorControl(String.format(AppMessage.MSJ_FOUND_INFORMATION_DELETED, user.getUserName()),
+								HttpStatus.NOT_FOUND.value(), true),
+						HttpStatus.NOT_FOUND);
+			}
+
+			String randomPassword = AppMethods.randomPassword();
+			user.setPassword(passwordEncoder.encode(randomPassword));
+
+			MailParameters mailParameters = new MailParameters();
+			mailParameters.setRecipentTO(Arrays.asList(user.getUserName()));
+
+			Map<String, String> params = new HashMap<>();
+			params.put("password", randomPassword);
+
+			try {
+				mailService.sendMailWihTemplate(mailParameters, AcronyMail.RECOVERY_PASSWORD, params);
+				userRepo.save(user);
+			} catch (Exception e) {
+				throw e;
+			}
+
+			return new ResponseEntity<MessageControl>(
+					new MessageControl(String.format(AppMessage.MSJ_PASS_RECOVERY, user.getUserName()),
+							HttpStatus.OK.value(), true),
+					HttpStatus.OK);
+		} catch (Exception err) {
+			return new ResponseEntity<ErrorControl>(
+					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
 	public User userReplace(User rplUser) {
 		User found = userRepo.findById(rplUser.getId()).orElse(null);
 		if (found != null) {
@@ -241,7 +357,45 @@ public class UserService extends BaseService<User> {
 			found.setName(rplUser.getName() == null ? found.getName() : rplUser.getName());
 			found.setPhone(rplUser.getPhone() == null ? found.getPhone() : rplUser.getPhone());
 		}
-
 		return found;
 	}
+
+	public Boolean verifyRoleUser(Long userRoleId, Long userId, Boolean isCreate, Boolean toBlock) {
+		Boolean result = false;
+		switch (wolfDev.getConfig().getCurrentUserRole()) {
+		case "ROLE_MASTER":
+			if (isCreate) {
+				if (userRoleId.equals(AppRoles.MASTER.getRole()) || userRoleId.equals(AppRoles.GERENTE.getRole()))
+					result = true;
+			}
+			if (toBlock)
+				if (!(userRoleId.equals(AppRoles.MASTER.getRole())
+						&& userId.equals(wolfDev.getConfig().getCurrentUserId())))
+					result = true;
+			break;
+		case "ROLE_GERENTE":
+
+			if (toBlock) {
+				if ((userRoleId.equals(AppRoles.GERENTE.getRole())
+						&& !userId.equals(wolfDev.getConfig().getCurrentUserId()))
+						|| userRoleId.equals(AppRoles.PUBLIC.getRole()))
+					result = true;
+			} else {
+				if (userRoleId.equals(AppRoles.GERENTE.getRole()))
+					result = true;
+			}
+
+			break;
+		case "ROLE_PUBLIC":
+			if (!toBlock)
+				result = userRoleId.equals(AppRoles.PUBLIC.getRole());
+			break;
+		default:
+			result = false;
+			break;
+		}
+
+		return result;
+	}
+
 }

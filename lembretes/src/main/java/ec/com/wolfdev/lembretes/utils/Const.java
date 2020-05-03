@@ -2,6 +2,7 @@ package ec.com.wolfdev.lembretes.utils;
 
 public interface Const {
 	public static final String SCHEMA = "lembretes";
+	public static final String SCHEMA_COMMONS = "commons";
 	public static final String JNDI_DATA_BASE = "java:/PostGreDS";
 	public static final String JNDI_MAIL = "java:jboss/mail/Pgp";	
 	public static final String PACKAGE_NAMING = "ec.com.wolfdev.lembretes";

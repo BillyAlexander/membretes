@@ -32,35 +32,35 @@ public class LembretesConfiguration extends SpringBootServletInitializer {
 
 	@Value("${spring.jpa.show-sql}")
 	private Boolean showSql;
-	
+
 	@Bean
 	public JavaMailSender javaMailService() throws NamingException {
 
-	    JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-	    mailSender.setHost("smtp.gmail.com");
-	    mailSender.setPort(587);
-	     
-	    mailSender.setUsername("example@gmail.com");
-	    mailSender.setPassword("example");
-	    
-	    Properties props = mailSender.getJavaMailProperties();
-	    props.put("mail.transport.protocol", "smtp");
-	    props.put("mail.smtp.auth", "true");
-	    props.put("mail.smtp.starttls.enable", "true");
-	    
-	    return mailSender;
+		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+		mailSender.setHost("smtp.gmail.com");
+		mailSender.setPort(587);
+
+		mailSender.setUsername("example@gmail.com");
+		mailSender.setPassword("passw@rd");
+
+		Properties props = mailSender.getJavaMailProperties();
+		props.put("mail.transport.protocol", "smtp");
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+
+		return mailSender;
 	}
-	
+
 	@Bean
 	public DataSource dataBaseDataSource() throws NamingException {
 		DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
-        dataSourceBuilder.driverClassName("org.postgresql.Driver");
-        dataSourceBuilder.url("jdbc:postgresql://localhost:5432/postgres");
-        dataSourceBuilder.username("postgres");
-        dataSourceBuilder.password("password");
-        return dataSourceBuilder.build();
+		dataSourceBuilder.driverClassName("org.postgresql.Driver");
+		dataSourceBuilder.url("jdbc:postgresql://localhost:5432/postgres");
+		dataSourceBuilder.username("postgres");
+		dataSourceBuilder.password("password");
+		return dataSourceBuilder.build();
 	}
-	
+
 	@Bean
 	public EntityManagerFactory entityManagerFactory() throws NamingException {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
@@ -79,22 +79,22 @@ public class LembretesConfiguration extends SpringBootServletInitializer {
 		factory.afterPropertiesSet();
 		return factory.getObject();
 	}
-	
+
 	@Bean
 	public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(emf);
 		return transactionManager;
 	}
-	
+
 	@Bean
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
 		return new PersistenceExceptionTranslationPostProcessor();
 	}
-	
+
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
-		
+
 }
