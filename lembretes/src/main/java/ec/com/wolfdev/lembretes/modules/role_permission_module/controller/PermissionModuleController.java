@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ec.com.wolfdev.lembretes.modules.role_permission_module.service.PermissionModuleService;
 import ec.com.wolfdev.lembretes.utils.Const;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping(value = Const.API_PRIVATE + "permission", produces = MediaType.APPLICATION_JSON_VALUE)
 @PreAuthorize("hasRole('MASTER')")
+@Api(value = "API Module PermissionModule")
 public class PermissionModuleController {
 
 	@Autowired
@@ -24,6 +28,7 @@ public class PermissionModuleController {
 
 	@GetMapping(path = "{id}")
 	@PreAuthorize("hasAuthority('MODERADOR-READ')")
+	@ApiOperation(value = "Retorna um PermissionModule", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> getPermission(@PathVariable(required = true, name = "id") Long id)
 			throws ServletException {
 		return permissionModuleService.getPermission(id);

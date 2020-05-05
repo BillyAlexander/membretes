@@ -40,8 +40,8 @@ public class LembretesConfiguration extends SpringBootServletInitializer {
 		mailSender.setHost("smtp.gmail.com");
 		mailSender.setPort(587);
 
-		mailSender.setUsername("example@gmail.com");
-		mailSender.setPassword("passw@rd");
+		mailSender.setUsername("pgpsystemws@gmail.com");
+		mailSender.setPassword("Pgp_System_Ws@");
 
 		Properties props = mailSender.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");

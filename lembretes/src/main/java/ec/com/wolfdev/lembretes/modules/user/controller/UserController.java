@@ -25,21 +25,29 @@ import ec.com.wolfdev.lembretes.core.security.UserPrincipal;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
 import ec.com.wolfdev.lembretes.modules.user.service.UserService;
 import ec.com.wolfdev.lembretes.utils.Const;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping(value = Const.API_PRIVATE + "user", produces = MediaType.APPLICATION_JSON_VALUE)
 @PreAuthorize("hasAnyRole('MASTER','GERENTE','PUBLIC')")
+@Api(value = "API Module User")
 public class UserController {
 	@Autowired
 	private UserService userService;
 
 	@GetMapping
+	@PreAuthorize("hasAnyAuthority('MODERADOR-FIND','USER-FIND')")
+	@ApiOperation(value = "Retorna uma lista de users", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> getUsers() throws ServletException {
 		return userService.getUsers();
 	}
 
 	@GetMapping(value = "search")
-	@PreAuthorize("hasAnyAuthority('MODERADOR-READ','USER-READ')")
+	@PreAuthorize("hasAnyAuthority('MODERADOR-FIND','USER-FIND')")
+	@ApiOperation(value = "Retorna uma lista de Usuarios com filter", authorizations = {
+			@Authorization(value = "accessToken") })
 	public ResponseEntity<?> getUsersSearch(@RequestParam(required = false) Long personId,
 			@RequestParam(required = false, defaultValue = "") String userName,
 			@RequestParam(required = false, defaultValue = "") String personName,
@@ -59,18 +67,21 @@ public class UserController {
 
 	@GetMapping(path = "{id}")
 	@PreAuthorize("hasAnyAuthority('MODERADOR-READ','USER-READ')")
+	@ApiOperation(value = "Retorna um user unico", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> getUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return userService.getUser(id);
 	}
 
 	@GetMapping(value = "me")
 	@PreAuthorize("hasAnyAuthority('MODERADOR-READ','USER-READ')")
+	@ApiOperation(value = "Retorna o user autenticado", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> getUser(@CurrentUser UserPrincipal userPrincipal) throws ServletException {
 		return userService.meUser(userPrincipal.getId());
 	}
 
 	@PostMapping
 	@PreAuthorize("hasAnyAuthority('MODERADOR-WRITE','USER-WRITE')")
+	@ApiOperation(value = "Salva um user", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> createUser(@RequestBody(required = true) @Valid User user)
 			throws ServletException, PgpException {
 		return userService.saveUser(user, true);
@@ -78,6 +89,7 @@ public class UserController {
 
 	@PutMapping(path = "{id}")
 	@PreAuthorize("hasAnyAuthority('MODERADOR-WRITE','USER-WRITE')")
+	@ApiOperation(value = "Atualiza um user", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> updateUser(@PathVariable(required = true, name = "id") Long id,
 			@RequestBody(required = true) User user) throws ServletException, PgpException {
 		user.setId(id);
@@ -86,12 +98,14 @@ public class UserController {
 
 	@DeleteMapping(path = "{id}")
 	@PreAuthorize("hasAnyAuthority('MODERADOR-DELETE','MODERADOR-WRITE')")
+	@ApiOperation(value = "Desativa um user", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> deleteUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return userService.deleteUser(id);
 	}
 
 	@PutMapping(value = "block/{id}")
 	@PreAuthorize("hasAnyAuthority('MODERADOR-WRITE')")
+	@ApiOperation(value = "Desabilita um user", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> blockUser(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return userService.blockUser(id);
 	}

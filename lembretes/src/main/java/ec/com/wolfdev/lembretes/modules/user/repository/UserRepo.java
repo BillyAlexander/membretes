@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import ec.com.wolfdev.lembretes.core.security.UserToFilter;
 import ec.com.wolfdev.lembretes.modules.user.entity.User;
 import ec.com.wolfdev.lembretes.modules.user.entity.lite.UserLite;
 
@@ -37,4 +38,17 @@ public interface UserRepo extends JpaRepository<User, Long> {
 			@Param("roleId") Long roleId, @Param("userGroupId") Long userGroupId, @Param("status") Boolean status,
 			@Param("isDeleted") Boolean isDeleted, @Param("startDate") Date startDate, @Param("endDate") Date endDate,
 			Pageable page);
+		
+	@Query("SELECT a.id AS id, a.userName AS userName, a.password AS password,"
+			+ " a.provider AS provider, a.name AS name,"
+			+ " r.id AS roleId, r.name AS roleName, p.id AS rolePermissionId,"
+			+ " ps.id AS permissionId, ps.name AS permissionName, m.id AS moduleId,"
+			+ " m.name AS moduleName"
+			+ " FROM User a "
+			+ " INNER JOIN a.role r"
+			+ " INNER JOIN r.rolePermissionModules p"
+			+ " INNER JOIN p.permission ps"
+			+ " INNER JOIN p.module m"
+			+ " WHERE a.id=:userId")
+	public List<UserToFilter> findUserByIdInToken(@Param("userId") Long userId);
 }

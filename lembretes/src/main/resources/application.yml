@@ -21,24 +21,37 @@ spring:
 
 ## JPA    
   jpa:
-    generate-ddl: true
-    show-sql: true
+    generate-ddl: false
+    show-sql: false
     hibernate:
       ##drop n create table again, good for testing, comment this in production or change to validate,update
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           batch_size: 50
+## Flyway
+  flyway:
+    enabled: true          
+    schemas:
+      - lembretes
+      - commons
+    locations:
+      - classpath:db/migration/lembretes
+      - classpath:db/migration/commons
+    baseline-on-migrate: true
+    check-location: true
+    encoding: UTF-8
+    out-of-order: true
   
   security:
     oauth2:
       client:
         registration:
           google:
-            clientId: client.apps.googleusercontent.com
-            clientSecret: secret
+            clientId: 124194177569-a2eiihrpj39uvvcnnolf5d4bo0crj2nl.apps.googleusercontent.com
+            clientSecret: GQGN3SetFapaSjy3bJ0rPB80
             redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
             scope:
               - email

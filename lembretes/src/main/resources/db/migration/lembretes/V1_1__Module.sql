@@ -1,4 +1,5 @@
- INSERT INTO lembretes.catalog_admin (name, code, other, parent) VALUES
+
+INSERT INTO lembretes.catalog_admin (name, code, other, parent) VALUES
 ('Listado de Modulos', 'MODULES', NULL, NULL); 
 
 INSERT INTO lembretes.catalog_admin(name, code, parent) VALUES

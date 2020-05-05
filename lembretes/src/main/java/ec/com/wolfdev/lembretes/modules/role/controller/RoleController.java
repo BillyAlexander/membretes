@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ec.com.wolfdev.lembretes.modules.role.service.RoleService;
 import ec.com.wolfdev.lembretes.utils.Const;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping(value = Const.API_PRIVATE + "role", produces = MediaType.APPLICATION_JSON_VALUE)
 @PreAuthorize("hasRole('MASTER')")
+@Api(value = "API Module Role")
 public class RoleController {
 
 	@Autowired
@@ -24,6 +28,7 @@ public class RoleController {
 
 	@GetMapping(path = "{id}")
 	@PreAuthorize("hasAuthority('MODERADOR-READ')")
+	@ApiOperation(value = "Retorna um Role", authorizations = { @Authorization(value = "accessToken") })
 	public ResponseEntity<?> getRole(@PathVariable(required = true, name = "id") Long id) throws ServletException {
 		return roleService.getRole(id);
 	}

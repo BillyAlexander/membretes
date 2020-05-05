@@ -40,11 +40,26 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 				.map(p -> new SimpleGrantedAuthority(p.getModule().getName() + "-" + p.getPermission().getName()))
 				.forEach(authorities::add);
 
-		for (GrantedAuthority grantedAuthority : authorities) {
-			System.out.println(grantedAuthority.getAuthority());
-		}
+//		for (GrantedAuthority grantedAuthority : authorities) {
+//			System.out.println(grantedAuthority.getAuthority());
+//		}
 
 		return new UserPrincipal(user.getId(), user.getUserName(), user.getPassword(), authorities);
+	}
+	
+	public static UserPrincipal create(List<UserToFilter> userInToken) {
+		
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_" + userInToken.get(0).getRoleName()));
+		
+		userInToken.stream().map(p -> new SimpleGrantedAuthority(p.getModuleName() + "-" + p.getPermissionName()))
+				.forEach(authorities::add);
+		
+//		for (GrantedAuthority grantedAuthority : authorities) {
+//			System.out.println(grantedAuthority.getAuthority());
+//		}
+		
+		return new UserPrincipal(userInToken.get(0).getId(), userInToken.get(0).getUserName(), userInToken.get(0).getPassword(), authorities);
 	}
 
 	public static UserPrincipal create(User user, Map<String, Object> attributes) {

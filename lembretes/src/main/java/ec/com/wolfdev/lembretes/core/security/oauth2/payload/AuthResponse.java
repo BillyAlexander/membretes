@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class AuthResponse {
 	private String accessToken;
-	private String name = "Billy";
 	private String tokenType = Const.TOKEN_TYPE;
 
 	public AuthResponse(String accessToken) {
