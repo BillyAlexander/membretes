@@ -8,5 +8,5 @@ import lombok.Setter;
 public class ErrorControl {
 	private @Getter @Setter String error;
 	private @Getter @Setter int statusCode;
-	private @Getter @Setter boolean isCustom;
+	private @Getter @Setter Boolean isCustom = true;
 }

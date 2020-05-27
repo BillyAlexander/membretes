@@ -266,13 +266,11 @@ public class UserService extends BaseService<User> {
 	public ResponseEntity<?> registerUser(SignUpRequest signUpRequest) {
 		try {
 			if (userRepo.existsByUserName(signUpRequest.getUserName())) {
-				throw new BadRequestException(AppMessage.MSJ_SIGNUP_EMAIL_EXISTS + " " + signUpRequest.getUserName());
-			}
-
-			if (!verifyRoleUser(AppRoles.PUBLIC.getRole(), 0L, true, false))
 				return new ResponseEntity<ErrorControl>(
-						new ErrorControl(AppMessage.MSJ_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.value(), true),
+						new ErrorControl(AppMessage.MSJ_SIGNUP_EMAIL_EXISTS + " " + signUpRequest.getUserName(),
+								HttpStatus.UNAUTHORIZED.value(), true),
 						HttpStatus.UNAUTHORIZED);
+			}
 
 			// Creating user's account
 			User user = new User();
@@ -296,8 +294,8 @@ public class UserService extends BaseService<User> {
 
 			URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/user/me")
 					.buildAndExpand(result.getId()).toUri();
-
-			return ResponseEntity.created(location).body(new ApiResponse(true, AppMessage.MSJ_SIGNUP_OK));
+			return new ResponseEntity<MessageControl>(new MessageControl(
+					AppMessage.MSJ_SIGNUP_OK + " " + user.getUserName(), HttpStatus.OK.value(), true), HttpStatus.OK);
 		} catch (Exception err) {
 			return new ResponseEntity<ErrorControl>(
 					new ErrorControl(err.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(), true),

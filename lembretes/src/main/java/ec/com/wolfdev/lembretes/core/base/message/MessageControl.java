@@ -8,5 +8,5 @@ import lombok.Setter;
 public class MessageControl {
 	private @Getter @Setter String message;
 	private @Getter @Setter int statusCode;
-	private @Getter @Setter boolean isCustom;
+	private @Getter @Setter Boolean isCustom = true;
 }
