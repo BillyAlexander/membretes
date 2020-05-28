@@ -10,7 +10,7 @@ const createOptions = { autoClose: false, transition: Zoom, position: toast.POSI
 
 const viewMessage = (txt) => {
   let txts = txt.split("_");
-  let font = "h6"
+  let font = "subtitle1"
   return (
     <div>
       {txts.map((item, index) => {

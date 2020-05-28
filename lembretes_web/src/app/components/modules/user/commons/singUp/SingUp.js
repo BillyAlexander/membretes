@@ -73,8 +73,8 @@ const SingUp = props => {
     notifier(toastId).loading({ component: "Loading..." });
 
     await requestApi(pathLogin)
-      .create({ userName: formState.values.email, password: formState.values.password, lastName: formState.values.lastName, name: formState.values.firstName })
-      .then(response => { notifier(toastId).update({ component: "Success_Welcome!", type: 'success' }) })
+      .signUp({ userName: formState.values.email, password: formState.values.password, lastName: formState.values.lastName, name: formState.values.firstName })
+      .then(response => { notifier(toastId).update({ component: response.message, type: 'success' }); history.push("/sign-in"); })
       .catch(error => { notifier(toastId).update({ component: error.message, type: 'error' }) });
   };
 
