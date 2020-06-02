@@ -2,6 +2,8 @@ import axios from 'axios';
 import { domainConfig } from './Config';
 
 const ApiHost = domainConfig.api.url;
+const accessToken = 'accessToken';
+const tokenType = 'tokenType';
 
 /* const method_map = {
   get: 'get',
@@ -15,7 +17,7 @@ const http_axios = axios.create({
   timeout: 8000,
 });
 
-function request(method, resource, params, token = sessionStorage.getItem("token")) {
+function request(method, resource, params, token = localStorage.getItem("token")) {
   console.log('despues', token);
   let options = {
     url: resource,
@@ -57,22 +59,42 @@ function signUp(method, resource, params) {
 };
 
 const getCurrentUser = (method, resource, params) => {
-  if (!localStorage.getItem(domainConfig.accessToken) || !localStorage.getItem(domainConfig.tokenType) ) {
-    return Promise.reject("No access token set.");
+  console.log(localStorage.getItem(accessToken), localStorage.getItem(tokenType));
+  if (!localStorage.getItem(accessToken) || !localStorage.getItem(tokenType)) {
+    return Promise.reject("Access Denied");
   }
 
   let options = {
-    url: resource,
+    url: domainConfig.api.pathAuth + resource,
     method: method,
     data: params,
 
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': localStorage.getItem(domainConfig.tokenType)+' '+ localStorage.getItem(domainConfig.accessToken),
-    }    
+      'Authorization': localStorage.getItem(tokenType) + ' ' + localStorage.getItem(accessToken),
+    }
   };
 
   return http_axios(options).then(handle_response()).catch(handle_errors());
+}
+
+const isAuthenticated = () => {
+  if (!localStorage.getItem(accessToken) || !localStorage.getItem(tokenType)) {
+    return false
+  }
+  return true;
+}
+
+
+const logout = () => {
+  try {
+    //localStorage.clear();
+    localStorage.removeItem(accessToken);
+    localStorage.removeItem(tokenType);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 export const requestApi = (resource) => {
@@ -83,7 +105,6 @@ export const requestApi = (resource) => {
       var _resource = params ? resource + '/' + params : resource;
       return request('get', _resource);
     },
-
     create: function (params) {
       return request('post', resource, params);
     },
@@ -91,7 +112,6 @@ export const requestApi = (resource) => {
     update: function (params) {
       return request('put', resource + '/' + params._id, params);
     },
-
     remove: function (params) {
       return request('delete', resource + '/' + params._id);
     },
@@ -101,9 +121,16 @@ export const requestApi = (resource) => {
     signUp: (params) => {
       return signUp('post', resource, params);
     },
-    getCurrentUser:(params) => {
-      return getCurrentUser('post', resource, params);
+    getCurrentUser: (params) => {
+      return getCurrentUser('get', resource, params);
     },
+    isAuthenticated: () => {
+      return isAuthenticated();
+    },
+    logout: () => {
+      return logout();
+    }
+
     // get_one: function (params) {
     //     return this.get(params).then(function (elements) {
     //         if (!_(elements).isEmpty()) {
@@ -129,8 +156,8 @@ const handle_response = () => {
 const setHeaders = () => {
   return response => {
     if (!response.data.error) {
-      sessionStorage.setItem(domainConfig.accessToken, response.data.accessToken);
-      sessionStorage.setItem(domainConfig.tokenType, response.data.tokenType);
+      localStorage.setItem(accessToken, response.data.accessToken);
+      localStorage.setItem(tokenType, response.data.tokenType);
       return response.data;
     }
     return response.data.error;

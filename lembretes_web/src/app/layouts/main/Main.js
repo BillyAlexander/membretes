@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import TopBar from './TopBar';
 import Footer from './Footer';
 import SideBar from './SideBar';
+import PropTypes from 'prop-types';
 
 const Main = props => {
   const { children } = props;
@@ -61,6 +62,11 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   }
 }));
+
+Main.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string
+};
 
 export default Main
 

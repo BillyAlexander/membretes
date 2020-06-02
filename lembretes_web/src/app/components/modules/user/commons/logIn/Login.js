@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link as RouterLink, withRouter } from 'react-router-dom';
+import { Link as RouterLink, withRouter} from 'react-router-dom';
 import validate from 'validate.js';
 import { requestApi, notifier } from '../../../../../core/index'
 import PropTypes from 'prop-types';
@@ -43,6 +43,11 @@ const Login = props => {
     errors: {}
   });
 
+  const handleRedirect = () => {
+    window.location.href = '/home';
+    //history.push('/home');
+  };
+
   /* Handles */
   const handleBack = () => {
     history.goBack();
@@ -83,7 +88,10 @@ const Login = props => {
 
     await requestApi(pathLogin)
       .login({ userName: formState.values.email, password: formState.values.password })
-      .then(response => { notifier(toastId).update({ component: "Welcome!", type: 'success' }) })
+      .then(response => {
+        notifier(toastId).update({ component: "Welcome!", type: 'success' });
+        handleRedirect();
+      })
       .catch(error => { notifier(toastId).update({ component: error.message, type: 'error' }) });
   }
 
@@ -315,5 +323,6 @@ const useStyles = makeStyles(theme => ({
 Login.propTypes = {
   history: PropTypes.object
 };
+
 
 export default withRouter(Login);
